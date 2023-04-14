@@ -5,9 +5,9 @@ I made this for personal use to curate music, but feel free to use for whatever.
 
 ## Requirements
 
-Go 1.16 or later
-A Spotify account
-A [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) account and an app with a client ID and secret
+- Go 1.16 or later
+- A Spotify account
+- A [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) account and an app with a client ID and secret
 
 ## Usage
 

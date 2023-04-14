@@ -113,7 +113,7 @@ func main() {
 
 	// create a new playlist with the name of the CSV file
 	playlistName := strings.TrimSuffix(filepath.Base(*csvFilePath), filepath.Ext(*csvFilePath))
-	playlist, err := client.CreatePlaylistForUser(ctx, user.ID, playlistName, "", false, true)
+	playlist, err := client.CreatePlaylistForUser(ctx, user.ID, playlistName, "", false, false)
 	if err != nil {
 		fmt.Printf("Failed to create playlist '%s': %v\n", playlistName, err)
 		return
@@ -122,12 +122,16 @@ func main() {
 	// add each track from the CSV file to the playlist
 	for _, record := range records[1:] {
 		// search for the track using the artist and track name fields
-		query := fmt.Sprintf("track:%s artist:%s", record[1], record[0])
+		query := fmt.Sprintf("%s %s", record[1], record[0])
+
 		searchResp, err := client.Search(ctx, query, spotify.SearchTypeTrack)
 		if err != nil {
 			fmt.Printf("Failed to search for track '%s': %v\n", record[1], err)
 			continue
 		}
+
+		// throw in slight delay to avoid rate limiting
+		time.Sleep(100 * time.Millisecond)
 
 		// add the first search result to the playlist
 		if len(searchResp.Tracks.Tracks) > 0 {
@@ -135,12 +139,12 @@ func main() {
 
 			_, err := client.AddTracksToPlaylist(ctx, playlist.ID, trackID)
 			if err != nil {
-				fmt.Printf("Failed to add track '%s' to playlist: %v\n", record[1], err)
+				fmt.Printf("Failed to add track '%s - %s' to playlist: %v\n", record[1], record[0], err)
 				continue
 			}
-			fmt.Printf("Added track '%s' to playlist\n", record[1])
+			fmt.Printf("Added track '%s - %s' to playlist\n", record[1], record[0])
 		} else {
-			fmt.Printf("Could not find track '%s'\n", record[1])
+			fmt.Printf("Could not find track '%s- %s'\n", record[1], record[0])
 		}
 	}
 }
