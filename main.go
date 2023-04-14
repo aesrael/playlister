@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -35,6 +36,11 @@ func createAuthClient() (*spotify.Client, error) {
 	authURL := auth.AuthURL(State)
 
 	fmt.Printf("Please log in to Spotify by visiting the following page in your web browser:\n\n%s\n\n", authURL)
+	err := exec.Command("open", "-a", "Google Chrome", authURL).Run()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
 
 	// start a web server to listen for the callback request
 	authChan := make(chan *spotify.Client)
