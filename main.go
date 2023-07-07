@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"encoding/csv"
-	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -82,15 +82,20 @@ func main() {
 		fmt.Println("Error loading .env file")
 	}
 
-	csvFilePath := flag.String("csv", "", "path to CSV file")
-	flag.Parse()
+	// primt for csv path
+	inputReader := bufio.NewReader(os.Stdin)
 
-	if *csvFilePath == "" {
+	fmt.Print("Enter the path for the csv file you want to playlist: ")
+
+	csvFilePath, _ := inputReader.ReadString('\n')
+	csvFilePath = strings.TrimSuffix(csvFilePath, "\n")
+
+	if csvFilePath == "" {
 		fmt.Println("Please provide a path to a CSV file using the -csv flag")
 		return
 	}
 
-	file, err := os.Open(*csvFilePath)
+	file, err := os.Open(csvFilePath)
 	if err != nil {
 		fmt.Printf("Failed to open CSV file: %v\n", err)
 		return
@@ -118,7 +123,7 @@ func main() {
 	}
 
 	// create a new playlist with the name of the CSV file
-	playlistName := strings.TrimSuffix(filepath.Base(*csvFilePath), filepath.Ext(*csvFilePath))
+	playlistName := strings.TrimSuffix(filepath.Base(csvFilePath), filepath.Ext(csvFilePath))
 	playlist, err := client.CreatePlaylistForUser(ctx, user.ID, playlistName, "", false, false)
 	if err != nil {
 		fmt.Printf("Failed to create playlist '%s': %v\n", playlistName, err)
@@ -137,7 +142,7 @@ func main() {
 		}
 
 		// throw in slight delay to avoid rate limiting
-		time.Sleep(100 * time.Millisecond)
+		// time.Sleep(100 * time.Millisecond)
 
 		// add the first search result to the playlist
 		if len(searchResp.Tracks.Tracks) > 0 {
